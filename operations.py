@@ -1,4 +1,4 @@
-```python
+
 from appwrite.id import ID
 from appwrite.query import Query
 from datetime import datetime
