@@ -1,3 +1,4 @@
+```python
 from appwrite.id import ID
 from appwrite.query import Query
 from datetime import datetime
@@ -20,17 +21,15 @@ class ContactOperations:
     # -------------------------
     def register_user(self, username, password):
         try:
-            # Check if username already exists
             users = self.db.list_documents(
                 DATABASE_ID,
                 USERS_COLLECTION_ID,
                 [Query.equal("username", username)]
             )
 
-            if users["total"] > 0:
+            if users.total > 0:
                 return False, "Username already exists"
 
-            # 🔐 Hash password before storing
             hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
             self.db.create_document(
@@ -54,7 +53,6 @@ class ContactOperations:
     # -------------------------
     def authenticate_user(self, username, password):
         try:
-            # 🔐 Hash input password before checking
             hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
             users = self.db.list_documents(
@@ -66,7 +64,7 @@ class ContactOperations:
                 ]
             )
 
-            return users["total"] > 0
+            return users.total > 0
 
         except Exception:
             return False
@@ -87,7 +85,7 @@ class ContactOperations:
 
             contacts = []
 
-            for doc in docs["documents"]:
+            for doc in docs.documents:
                 contacts.append({
                     "id": doc["$id"],
                     "name": doc["name"],
@@ -106,7 +104,6 @@ class ContactOperations:
     # -------------------------
     def add_contact(self, username, name, phone, email):
         try:
-            # Check duplicate phone per user
             existing = self.db.list_documents(
                 DATABASE_ID,
                 CONTACTS_COLLECTION_ID,
@@ -116,7 +113,7 @@ class ContactOperations:
                 ]
             )
 
-            if existing["total"] > 0:
+            if existing.total > 0:
                 return False, "Phone number already exists"
 
             self.db.create_document(
@@ -175,14 +172,13 @@ class ContactOperations:
             return False, str(e)
 
     # -------------------------
-    # SEARCH CONTACTS (MULTI-FIELD)
+    # SEARCH CONTACTS
     # -------------------------
     def search_contacts(self, username, search_term):
         try:
             results = []
             seen_ids = set()
 
-            # Search by name
             name_docs = self.db.list_documents(
                 DATABASE_ID,
                 CONTACTS_COLLECTION_ID,
@@ -192,7 +188,6 @@ class ContactOperations:
                 ]
             )
 
-            # Search by phone
             phone_docs = self.db.list_documents(
                 DATABASE_ID,
                 CONTACTS_COLLECTION_ID,
@@ -202,7 +197,6 @@ class ContactOperations:
                 ]
             )
 
-            # Search by email
             email_docs = self.db.list_documents(
                 DATABASE_ID,
                 CONTACTS_COLLECTION_ID,
@@ -212,11 +206,10 @@ class ContactOperations:
                 ]
             )
 
-            # Combine all results
             all_docs = (
-                name_docs["documents"]
-                + phone_docs["documents"]
-                + email_docs["documents"]
+                name_docs.documents
+                + phone_docs.documents
+                + email_docs.documents
             )
 
             for doc in all_docs:
@@ -235,4 +228,4 @@ class ContactOperations:
         except Exception as e:
             print("Search error:", e)
             return []
-
+```
